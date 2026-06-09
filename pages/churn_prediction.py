@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-df = pd.read_csv("data/customers.csv")
+from utils.project_paths import project_path
+
+df = pd.read_csv(project_path("data", "customers.csv"))
 
 X = df[['Age','Annual_Income','Monthly_Spending','Purchase_Frequency']]
 y = df['Churn']

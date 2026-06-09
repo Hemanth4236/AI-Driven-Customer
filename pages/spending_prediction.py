@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-df = pd.read_csv("data/customers.csv")
+from utils.project_paths import project_path
+
+df = pd.read_csv(project_path("data", "customers.csv"))
 
 X = df[['Age','Monthly_Salary']]
 y = df['Monthly_Spending']

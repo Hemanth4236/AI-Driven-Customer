@@ -3,6 +3,8 @@ import pandas as pd
 import joblib
 import plotly.express as px
 
+from utils.project_paths import project_path
+
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
@@ -67,11 +69,11 @@ st.markdown(
 # --------------------------------------------------
 
 try:
-    df = pd.read_csv("data/customers.csv")
+    df = pd.read_csv(project_path("data", "customers.csv"))
 
-    churn_model = joblib.load("models/churn_model.pkl")
-    spend_model = joblib.load("models/spending_model.pkl")
-    segment_model = joblib.load("models/segmentation_model.pkl")
+    churn_model = joblib.load(project_path("models", "churn_model.pkl"))
+    spend_model = joblib.load(project_path("models", "spending_model.pkl"))
+    segment_model = joblib.load(project_path("models", "segmentation_model.pkl"))
 
 except Exception as e:
     st.error(f"Error loading files: {e}")

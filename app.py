@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 import joblib
+from functools import lru_cache
+from pathlib import Path
+
+from utils.project_paths import project_path
 
 st.set_page_config(
     page_title="AI Customer Intelligence System",
@@ -24,8 +28,25 @@ page = st.sidebar.selectbox(
     ]
 )
 
-# ---------------- LOAD DATA ONCE ----------------
-df = pd.read_csv("data/customers.csv")
+@lru_cache(maxsize=1)
+def load_dataframe() -> pd.DataFrame:
+    data_path = project_path("data", "customers.csv")
+    return pd.read_csv(data_path)
+
+
+@lru_cache(maxsize=None)
+def load_model(model_name: str):
+    model_path = project_path("models", model_name)
+    if not Path(model_path).exists():
+        raise FileNotFoundError(f"Missing model file: {model_path}")
+    return joblib.load(model_path)
+
+
+try:
+    df = load_dataframe()
+except Exception as error:
+    st.error(f"Failed to load data/customers.csv: {error}")
+    st.stop()
 
 # ---------------- DASHBOARD ----------------
 if page == "Dashboard":
@@ -50,7 +71,11 @@ elif page == "Churn Prediction":
 
     st.subheader("🔴 Churn Prediction")
 
-    model = joblib.load("models/churn_model.pkl")
+    try:
+        model = load_model("churn_model.pkl")
+    except Exception as error:
+        st.error(f"Failed to load churn model: {error}")
+        st.stop()
 
     age = st.slider("Age", 18, 70, 30)
     gender = st.selectbox("Gender", ["Male", "Female"])
@@ -74,7 +99,11 @@ elif page == "Spending Prediction":
 
     st.subheader("💰 Spending Prediction")
 
-    model = joblib.load("models/spending_model.pkl")
+    try:
+        model = load_model("spending_model.pkl")
+    except Exception as error:
+        st.error(f"Failed to load spending model: {error}")
+        st.stop()
 
     age = st.slider("Age", 18, 70, 30)
     gender = st.selectbox("Gender", ["Male", "Female"])
@@ -94,8 +123,12 @@ elif page == "Recommendations":
 
     st.subheader("🎯 AI Recommendation Engine")
 
-    churn_model = joblib.load("models/churn_model.pkl")
-    spend_model = joblib.load("models/spending_model.pkl")
+    try:
+        churn_model = load_model("churn_model.pkl")
+        spend_model = load_model("spending_model.pkl")
+    except Exception as error:
+        st.error(f"Failed to load recommendation models: {error}")
+        st.stop()
 
     age = st.slider("Age", 18, 70, 30)
     salary = st.number_input("Monthly Salary", 10000, 200000, 40000)
@@ -133,8 +166,12 @@ elif page == "Customer Search":
 
     st.subheader("🔍 Customer Search + AI Prediction")
 
-    churn_model = joblib.load("models/churn_model.pkl")
-    spend_model = joblib.load("models/spending_model.pkl")
+    try:
+        churn_model = load_model("churn_model.pkl")
+        spend_model = load_model("spending_model.pkl")
+    except Exception as error:
+        st.error(f"Failed to load search models: {error}")
+        st.stop()
 
     # FILTERS
     age_min, age_max = st.slider("Age Range", 18, 70, (25, 40))

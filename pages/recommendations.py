@@ -1,5 +1,7 @@
 import streamlit as st
 
+from utils.project_paths import project_path
+
 st.title("AI Recommendation Engine")
 
 income = st.number_input("Monthly Salary",10000,200000,50000)
